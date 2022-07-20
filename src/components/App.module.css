@@ -1,0 +1,11 @@
+.test {
+    background-color: skyblue;
+    height: 100vh;
+}
+
+.App {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-gap: 16px;
+  padding-bottom: 24px;
+}

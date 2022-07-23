@@ -5,6 +5,12 @@ import PropTypes from 'prop-types';
 
 const Modal = ({ closeModal, children }) => {
   useEffect(() => {
+    function handleKeyDown(e) {
+      if (e.code === 'Escape') {
+        closeModal();
+      }
+    }
+
     window.addEventListener('keydown', handleKeyDown);
 
     return () => {
@@ -18,12 +24,6 @@ const Modal = ({ closeModal, children }) => {
 
   function handleOverlayClick(e) {
     if (e.target === e.currentTarget) {
-      closeModal();
-    }
-  }
-
-  function handleKeyDown(e) {
-    if (e.code === 'Escape') {
       closeModal();
     }
   }

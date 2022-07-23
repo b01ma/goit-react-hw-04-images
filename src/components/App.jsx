@@ -18,6 +18,7 @@ export const App = () => {
 
   function getFormInputQuery(query) {
     setQuery(query);
+    setPage(1);
   }
 
   function getImagesInfo(totalHits) {
@@ -57,7 +58,6 @@ export const App = () => {
   return (
     <div className={css.App}>
       <Searchbar onSubmit={getFormInputQuery} />
-
       {totalHits === 0 && <Message text={`Sorry, no picture of ${query}`} />}
 
       <ImageGallery
@@ -67,6 +67,7 @@ export const App = () => {
         hitsPerPage={hitsPerPage}
         getImgUrl={getLargeImgUrl}
       />
+
       {showLoadMoreButton() && <Button onClick={handleClick} />}
       {largeImageUrl && (
         <Modal closeModal={closeModal}>

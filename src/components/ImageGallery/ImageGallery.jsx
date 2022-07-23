@@ -22,6 +22,24 @@ const ImageGallery = ({
       getImage(query, currentPage, hitsPerPage)
         .then(r => r.json())
         .then(r => {
+          setImages(r.hits);
+          getInfo(r.totalHits);
+        })
+        .catch(e => {
+          console.log('error:', e.message);
+        })
+        .finally(() => {
+          setLoader(false);
+        });
+    }
+  }, [query]);
+
+  useEffect(() => {
+    if (currentPage > 1) {
+      setLoader(true);
+      getImage(query, currentPage, hitsPerPage)
+        .then(r => r.json())
+        .then(r => {
           setImages(images => [...images, ...r.hits]);
           getInfo(r.totalHits);
         })
@@ -32,7 +50,7 @@ const ImageGallery = ({
           setLoader(false);
         });
     }
-  }, [query, currentPage]);
+  }, [currentPage]);
 
   return (
     <div>

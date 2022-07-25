@@ -1,24 +1,50 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import css from './App.module.css';
 import Searchbar from './Searchbar/Searchbar';
 import ImageGallery from './ImageGallery/ImageGallery';
 import Message from './Message/Message';
 import Button from './Button/Button';
-
+import getImage from 'service/PixabayAPI';
 import Modal from './Modal/Modal';
 import Loader from './Loader/Loader';
 
 export const App = () => {
   const [query, setQuery] = useState('');
-  const [page, setPage] = useState(1);
+  const [images, setImages] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
   const [totalHits, setTotalHits] = useState(null);
-  const [hitsPerPage, setHitPerPage] = useState(10);
   const [largeImageUrl, setLargeImageUrl] = useState(null);
-  const [loader, setLoader] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const hitsPerPage = 20;
+
+  useEffect(() => {
+    if (query) {
+      loadImages();
+    }
+
+    function loadImages() {
+      setIsLoading(true);
+
+      getImage(query, currentPage)
+        .then(response => {
+          setImages(images => [...images, ...response.data.hits]);
+          setTotalHits(response.data.totalHits);
+        })
+        .catch(e => {
+          console.log('error:', e.message);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    }
+  }, [query, currentPage]);
 
   function getFormInputQuery(query) {
     setQuery(query);
-    setPage(1);
+    setCurrentPage(1);
+    setTotalHits(null);
+    setImages([]);
   }
 
   function getImagesInfo(totalHits) {
@@ -27,31 +53,28 @@ export const App = () => {
 
   function getLargeImgUrl(url) {
     setLargeImageUrl(url);
+    setIsLoading(true);
   }
 
-  function handleClick() {
-    setPage(page + 1);
+  function handleLoadMore() {
+    setCurrentPage(currentPage + 1);
   }
 
   function showLoadMoreButton() {
-    if (totalHits / hitsPerPage <= page) {
-      return false;
-    } else {
-      return true;
-    }
+    return totalHits / hitsPerPage < currentPage ? false : true;
   }
 
   function closeModal() {
     setLargeImageUrl(null);
-    setLoader(true);
+    setIsLoading(false);
   }
 
   function handleOnLoad() {
-    setLoader(false);
+    setIsLoading(false);
   }
 
   function handleOnError() {
-    setLoader(false);
+    setIsLoading(false);
     console.log('something went wrong, no image');
   }
 
@@ -61,17 +84,17 @@ export const App = () => {
       {totalHits === 0 && <Message text={`Sorry, no picture of ${query}`} />}
 
       <ImageGallery
-        query={query}
-        currentPage={page}
         getInfo={getImagesInfo}
-        hitsPerPage={hitsPerPage}
         getImgUrl={getLargeImgUrl}
+        images={images}
       />
 
-      {showLoadMoreButton() && <Button onClick={handleClick} />}
+      {isLoading && <Loader />}
+
+      {showLoadMoreButton() && <Button onClick={handleLoadMore} />}
       {largeImageUrl && (
         <Modal closeModal={closeModal}>
-          {loader && <Loader />}
+          {isLoading && <Loader />}
           <img
             src={largeImageUrl}
             alt=""
@@ -83,87 +106,3 @@ export const App = () => {
     </div>
   );
 };
-
-// export class App extends Component {
-//   state = {
-//     query: '',
-//     page: 1,
-//     totalHits: null,
-//     hitsPerPage: 10,
-//     largeImageUrl: null,
-//     loader: true,
-//   };
-
-//   getFormInputQuery = query => {
-//     this.setState({ query, page: 1 });
-//   };
-
-//   getImagesInfo = totalHits => {
-//     this.setState({
-//       totalHits,
-//     });
-//   };
-
-//   getLargeImgUrl = url => {
-//     this.setState({ largeImageUrl: url });
-//   };
-
-//   handleClick = () => {
-//     this.setState(prevState => ({ page: prevState.page + 1 }));
-//   };
-
-//   showLoadMoreButton = () => {
-//     const { totalHits, hitsPerPage, page } = this.state;
-//     if (totalHits / hitsPerPage <= page) {
-//       return false;
-//     } else {
-//       return true;
-//     }
-//   };
-
-//   closeModal = () => {
-//     this.setState({ largeImageUrl: null, loader: true });
-//   };
-
-//   handleOnLoad = () => {
-//     this.setState({ loader: false });
-//   };
-
-//   handleOnError = () => {
-//     this.setState({ loader: false });
-//     console.log('something went wrong, no image');
-//   };
-
-//   render() {
-//     const { query, largeImageUrl, page, hitsPerPage } = this.state;
-//     return (
-//       <div className={css.App}>
-//         <Searchbar onSubmit={this.getFormInputQuery} />
-
-//         {this.state.totalHits === 0 && (
-//           <Message text={`Sorry, no picture of ${this.state.query}`} />
-//         )}
-
-//         <ImageGallery
-//           query={query}
-//           currentPage={page}
-//           getInfo={this.getImagesInfo}
-//           hitsPerPage={hitsPerPage}
-//           getImgUrl={this.getLargeImgUrl}
-//         />
-//         {this.showLoadMoreButton() && <Button onClick={this.handleClick} />}
-//         {largeImageUrl && (
-//           <Modal closeModal={this.closeModal}>
-//             {this.state.loader && <Loader />}
-//             <img
-//               src={this.state.largeImageUrl}
-//               alt=""
-//               onLoad={this.handleOnLoad}
-//               onError={this.handleOnError}
-//             />
-//           </Modal>
-//         )}
-//       </div>
-//     );
-//   }
-// }

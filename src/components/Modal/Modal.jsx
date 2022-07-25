@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import css from './Modal.module.css';
-// import { Component } from 'react/cjs/react.production.min';
 import PropTypes from 'prop-types';
 
 const Modal = ({ closeModal, children }) => {
@@ -16,11 +15,7 @@ const Modal = ({ closeModal, children }) => {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, []);
-
-  function handleClick() {
-    closeModal();
-  }
+  }, [closeModal]);
 
   function handleOverlayClick(e) {
     if (e.target === e.currentTarget) {
@@ -32,8 +27,8 @@ const Modal = ({ closeModal, children }) => {
     <div className={css.overlay} onClick={handleOverlayClick} tabIndex={0}>
       <div className={css.modal}>{children}</div>
 
-      <button className={css.closeButton} type="button" onClick={handleClick}>
-        X
+      <button className={css.closeButton} type="button" onClick={closeModal}>
+        &times;
       </button>
     </div>
   );
@@ -42,54 +37,5 @@ const Modal = ({ closeModal, children }) => {
 Modal.propTypes = {
   closeModal: PropTypes.func.isRequired,
 };
-
-// export class Modal extends Component {
-//   componentDidMount() {
-//     window.addEventListener('keydown', this.handleKeyDown);
-//   }
-
-//   componentWillUnmount() {
-//     window.removeEventListener('keydown', this.handleKeyDown);
-//   }
-
-//   handleClick = () => {
-//     this.props.closeModal();
-//   };
-
-//   handleOverlayClick = e => {
-//     if (e.target === e.currentTarget) {
-//       this.props.closeModal();
-//     }
-//   };
-
-//   handleKeyDown = e => {
-//     if (e.code === 'Escape') {
-//       this.props.closeModal();
-//     }
-//   };
-
-//   render() {
-//     Modal.propTypes = {
-//       closeModal: PropTypes.func.isRequired,
-//     };
-//     return (
-//       <div
-//         className={css.overlay}
-//         onClick={this.handleOverlayClick}
-//         tabIndex={0}
-//       >
-//         <div className={css.modal}>{this.props.children}</div>
-
-//         <button
-//           className={css.closeButton}
-//           type="button"
-//           onClick={this.handleClick}
-//         >
-//           X
-//         </button>
-//       </div>
-//     );
-//   }
-// }
 
 export default Modal;

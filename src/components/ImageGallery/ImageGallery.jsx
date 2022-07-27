@@ -29,8 +29,6 @@ ImageGallery.propTypes = {
     })
   ).isRequired,
   getImgUrl: PropTypes.func.isRequired,
-  getInfo: PropTypes.func.isRequired,
-  query: PropTypes.string,
 };
 
 export default ImageGallery;
